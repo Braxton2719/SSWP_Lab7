@@ -1,0 +1,116 @@
+﻿@page "/books"
+@inject ILibraryService LibraryService
+@rendermode InteractiveServer
+
+<h2>Add Books</h2>
+
+<label>Title:</label>
+<input @bind="newBook.Title"></input>
+<br />
+<label>Author:</label>
+<input @bind="newBook.Author"></input>
+<br />
+<label>ISBN</label>
+<input @bind="newBook.ISBN"></input>
+<button class="btn btn-primary" @onclick="AddBook">Add Book</button>
+<br />
+
+<hr />
+
+<h2>Edit Books</h2>
+
+<label>ID of Book to Edit:</label>
+<input @bind="bookToBeEdited.Id"></input>
+<br />
+<label>Edit Title:</label>
+<input @bind="bookToBeEdited.Title"></input>
+<br />
+<label>Edit Author:</label>
+<input @bind="bookToBeEdited.Author"></input>
+<br />
+<label>Edit ISBN</label>
+<input @bind="bookToBeEdited.ISBN"></input>
+<button class="btn btn-primary" @onclick="EditBook">Edit Book</button>
+<br />
+
+<hr />
+
+<h2>Delete Books</h2>
+
+<label>ID of Book to Delete:</label>
+<input @bind="bookToBeDeleted.Id"></input>
+<br />
+<button class="btn btn-primary" @onclick="DeleteBook">Delete Book</button>
+<br />
+
+<hr />
+
+<h1>Library Books</h1>
+
+@if (books == null)
+{
+    <p>Loading books...</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Author</th>
+                <th>ISBN</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var book in books)
+            {
+                <tr>
+                    <td>@book.Id</td>
+                    <td>@book.Title</td>
+                    <td>@book.Author</td>
+                    <td>@book.ISBN</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+
+
+@code {
+    private List<Book> books;
+    private Book newBook = new();
+    private Book bookToBeEdited = new();
+    private Book bookToBeDeleted = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        books = await LibraryService.ReadBooksAsync();
+    }
+
+    private async Task AddBook()
+    {
+        await LibraryService.AddBookAsync(newBook);
+        newBook = new Book(); // Reset the form
+        books = await LibraryService.ReadBooksAsync(); // Refresh the users list
+        StateHasChanged(); // Force a UI re-render
+    }
+
+    private async Task EditBook() 
+    {
+        await LibraryService.EditBookAsync(bookToBeEdited);
+        bookToBeEdited = new Book();
+        books = await LibraryService.ReadBooksAsync();
+        StateHasChanged();
+    }
+
+    private async Task DeleteBook()
+    {
+        await LibraryService.DeleteBookAsync(bookToBeDeleted);
+        bookToBeDeleted = new Book();
+        books = await LibraryService.ReadBooksAsync();
+        StateHasChanged();
+    }
+
+}

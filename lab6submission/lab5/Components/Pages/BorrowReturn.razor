@@ -1,0 +1,86 @@
+﻿@page "/borrow-return"
+@inject ILibraryService LibraryService
+@rendermode InteractiveServer
+
+<h3>Borrow a Book</h3>
+
+<label>ID of Book to Borrow:</label>
+<input type="number" @bind="bookIdToBorrow" />
+<br />
+<label>ID of User Borrowing:</label>
+<input type="number" @bind="userIdBorrowing" />
+<br />
+<button class="btn btn-primary" @onclick="BorrowBook">Borrow</button>
+
+<hr />
+
+<h3>Return a Book</h3>
+
+<label>ID of User Returning:</label>
+<input type="number" @bind="userIdReturning" />
+<br />
+<label>Number of Book to Return:</label>
+<input type="number" @bind="bookNumber" />
+<br />
+<button class="btn btn-primary" @onclick="ReturnBook">Return</button>
+
+<hr />
+
+@if (borrowedBooks == default)
+{
+    <p>No books are being borrowed right now.</p>
+}
+else
+{
+    @foreach (var entry in borrowedBooks) 
+    {
+        <h4>@entry.Key.Name</h4>
+        <ol>
+            @foreach (var book in entry.Value)
+            {
+                <li>@book.Title by @book.Author (ISBN: @book.ISBN)</li>
+            }
+        </ol>
+    }
+}
+
+
+@code {
+    private List<Book> books;
+    private List<User> users;
+    private Dictionary<User, List<Book>> borrowedBooks;
+    private int bookIdToBorrow;
+    private int userIdBorrowing;
+    private int bookNumber;
+    private int userIdReturning;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        books = await LibraryService.ReadBooksAsync();
+        users = await LibraryService.ReadUsersAsync();
+    }
+
+    private async Task BorrowBook()
+    {
+        var book = books.FirstOrDefault(b => b.Id == bookIdToBorrow);
+        var user = users.FirstOrDefault(u => u.Id == userIdBorrowing);
+
+        if (book != null && user != null)
+        {
+            borrowedBooks = await LibraryService.BorrowBookAsync(user, book);
+            StateHasChanged();
+        }
+    }
+
+    private async Task ReturnBook()
+    {
+        var user = users.FirstOrDefault(u => u.Id == userIdReturning);
+        if (user != null)
+        {
+            borrowedBooks = await LibraryService.ReturnBookAsync(user, bookNumber);
+            StateHasChanged();
+        }
+    }
+}
+

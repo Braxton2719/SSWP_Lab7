@@ -1,0 +1,106 @@
+﻿@page "/users"
+@inject ILibraryService LibraryService
+@rendermode InteractiveServer
+
+<h2>Add Users</h2>
+
+<label>Name:</label>
+<input @bind="newUser.Name"></input>
+<br />
+<label>Email:</label>
+<input @bind="newUser.Email"></input>
+<br />
+<button class="btn btn-primary" @onclick="AddUser">Add User</button>
+<br />
+
+<hr />
+
+<h2>Edit Users</h2>
+
+<label>ID of User to Edit:</label>
+<input @bind="updateUser.Id"></input>
+<br />
+<label>Edit Name:</label>
+<input @bind="updateUser.Name"></input>
+<br />
+<label>Edit Email:</label>
+<input @bind="updateUser.Email"></input>
+<br />
+<button class="btn btn-primary" @onclick="EditUser">Edit User</button>
+<br />
+
+<hr />
+
+<h2>Delete Users</h2>
+<label>ID of User to Delete</label>
+<input @bind="userToBeDeleted.Id"></input>
+<br />
+<button class="btn btn-primary" @onclick="DeleteUser">DeleteUser</button>
+<br />
+
+<hr />
+
+<h2>Users</h2>
+
+@if (users == null)
+{
+    <p>Loading users...</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in users)
+            {
+                <tr>
+                    <td>@user.Id</td>
+                    <td>@user.Name</td>
+                    <td>@user.Email</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<User> users;
+    private User newUser = new();
+    private User updateUser = new();
+    private User userToBeDeleted = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        users = await LibraryService.ReadUsersAsync();
+    }
+
+    private async Task AddUser()
+    {
+        await LibraryService.AddUsersAsync(newUser);
+        newUser = new User(); // Reset the form
+        users = await LibraryService.ReadUsersAsync(); // Refresh the users list
+        StateHasChanged(); // Force a UI re-render
+    }
+
+    private async Task EditUser()
+    {
+        await LibraryService.EditUserAsync(updateUser);
+        updateUser = new User(); // Reset the form
+        users = await LibraryService.ReadUsersAsync(); // Refresh the users list
+        StateHasChanged(); // Force a UI re-render
+    }
+
+    private async Task DeleteUser()
+    {
+        await LibraryService.DeleteUserAsync(userToBeDeleted);
+        userToBeDeleted = new User(); // Reset the form
+        users = await LibraryService.ReadUsersAsync(); // Refresh the users list
+        StateHasChanged(); // Force a UI re-render
+    }
+}
