@@ -49,7 +49,9 @@ namespace lab5.Components.Services
                     books.Add(book);
                 }
             }
-            return books;
+            //3. Trigger a failed test for Lab 7
+            //return books;
+            return;
         }
 
         public async Task<List<Book>> AddBookAsync(Book bookToBeAdded)
