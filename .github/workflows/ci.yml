@@ -26,7 +26,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '8.0.x'  # Use 8.0 if your project targets it; otherwise 6.0.x
+        dotnet-version: '8.0.x'
 
     - name: Restore dependencies
       run: dotnet restore ${{ env.Solution_Name }}
@@ -35,5 +35,5 @@ jobs:
       run: dotnet build ${{ env.Solution_Name }} --configuration Release --no-restore
 
     - name: Run tests
-      run: dotnet test {{ env.Test_Project_Path }} --no-restore --verbosity normal
+      run: dotnet test ${{ env.Test_Project_Path }} --no-restore --verbosity normal
 
