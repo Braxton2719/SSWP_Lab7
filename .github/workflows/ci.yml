@@ -1,0 +1,39 @@
+name: .NET CI for Lab 7
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    name: Build & Test on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+
+    env:
+      Solution_Name: lab5/lab5.sln
+      Test_Project_Path: lab6/lab6.csproj
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'  # Use 8.0 if your project targets it; otherwise 6.0.x
+
+    - name: Restore dependencies
+      run: dotnet restore ${{ env.Solution_Name }}
+
+    - name: Build solution
+      run: dotnet build ${{ env.Solution_Name }} --configuration Release --no-restore
+
+    - name: Run tests
+      run: dotnet test {{ env.Test_Project_Path }} --no-restore --verbosity normal
+
